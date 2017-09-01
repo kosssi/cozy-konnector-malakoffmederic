@@ -57,34 +57,64 @@ module.exports = new BaseKonnector(function fetch (fields) {
   .then(() => rq(`${domain}/espaceClient/sante/tbs/redirectionAction.do`))
   .then($ => {
     const result = []
-    $('.headerRemboursements').each(function () {
-      let amount = $(this).find('.montant').text()
-      amount = amount.replace(' €', '').replace(',', '.')
-      amount = parseFloat(amount)
 
-      const dateText = $(this).find('.dateEmission').text()
-      let date = dateText.split('Emis le ')[1].split('aux')[0]
+    // get the list of reimbursements rows
+    $('#tableauxRemboursements > .body > .toggle').filter(function () {
+      // filter out reimbursement to health professionals
+      return $(this).find('.dateEmission').text().indexOf('professionnels de santé') === -1
+    }).each(function () {
+      const $header = $(this).find('.headerRemboursements')
 
-      let fileurl = $(this).find('#tbsRembExportPdf').attr('href')
+      const amount = convertAmount($header.find('.montant').text())
+      const date = moment($header.find('#datePaiement').val(), 'x')
+
+      // unique id for reimbursement
+      const idReimbursement = $header.find('#idDecompte').val()
+
+      let fileurl = $header.find('#tbsRembExportPdf').attr('href')
       fileurl = `${domain}${fileurl}`
 
-      const idDecompte = $(this).find('#idDecompte').val()
+      const $subrows = $(this).find('> .body tbody tr')
+      let beneficiary = null
+      $subrows.each(function () {
+        const data = $(this).find('td, th').map(function(index, elem){
+          return $(this).text().trim()
+        }).get()
 
-      date = moment(date, 'DD/MM/YYYY')
-      const bill = {
-        date: date.toDate(),
-        amount,
-        fileurl,
-        filename: getFileName(date, idDecompte),
-        requestOptions: {
-          jar: j
+        if (data.length === 1) {
+          // we have a beneficiary line
+          beneficiary = data[0]
+        } else {
+          // a normal line with data
+          const originalAmount = convertAmount(data[data.length - 2])
+          const originalDate = moment($(this).find('#datePrestation').val(), 'x').toDate()
+          const subtype = data[1];
+          // unique id for the prestation line. May be usefull
+          const idPrestation = $(this).find('#idPrestation').val()
+          const socialSecurityRefund = convertAmount(data[3])
+          result.push({
+            type: 'health_costs',
+            subtype,
+            vendor: "Malakoff Mederic",
+            date: date.toDate(),
+            fileurl,
+            filename: getFileName(date, idReimbursement),
+            requestOptions: {
+              jar: j
+            },
+            amount,
+            idReimbursement,
+            idPrestation,
+            beneficiary,
+            socialSecurityRefund,
+            originalAmount,
+            originalDate,
+            isRefund: true
+          })
         }
-      }
-
-      if (bill.amount != null) {
-        result.push(bill)
-      }
+      })
     })
+
     return result
   })
   .then(entries => saveBills(entries, fields.folderPath, {
@@ -96,4 +126,9 @@ module.exports = new BaseKonnector(function fetch (fields) {
 function getFileName (date, idDecompte) {
   // you can have multiple reimbursements for the same day
   return `${date.format('YYYYMMDD')}_${idDecompte}_malakoff_mederic.pdf`
+}
+
+function convertAmount (amount) {
+  amount = amount.replace(' €', '').replace(',', '.')
+  return parseFloat(amount)
 }
