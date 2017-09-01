@@ -1,0 +1,30 @@
+{
+  "name": "cozy-konnector-malakoffmederic",
+  "version": "1.0.0",
+  "description": "Import your Malakoff Mederic bills",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cozy/cozy-konnector-malakoffmederic.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "standalone": "DEBUG=* cozy-konnector-standalone",
+    "standalone:record": "REPLAY=record cozy-konnector-standalone",
+    "standalone:replay": "REPLAY=replay cozy-konnector-standalone",
+    "dev": "cozy-konnector-dev",
+    "build": "webpack",
+    "deploy:travis": "git-directory-deploy --username Cozy --email contact@cozycloud.cc --directory build/ --repo=https://$GITHUB_TOKEN@github.com/cozy/cozy-konnector-malakoffmederic.git",
+    "deploy": "git-directory-deploy --directory build/ --branch build --repo=https://github.com/cozy/cozy-konnector-malakoffmederic.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cozy-konnector-libs": "^3.0.0-alpha.21",
+    "moment": "^2.18.1"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^4.0.1",
+    "git-directory-deploy": "^1.5.1",
+    "webpack": "^3.4.1"
+  }
+}
