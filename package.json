@@ -19,7 +19,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "cozy-konnector-libs": "^3.0.0-alpha.21",
+    "cozy-konnector-libs": "^3.0.0-alpha.26",
     "moment": "^2.18.1"
   },
   "devDependencies": {
