@@ -59,14 +59,12 @@ module.exports = new BaseKonnector(function fetch (fields) {
     const result = []
 
     // get the list of reimbursements rows
-    $('#tableauxRemboursements > .body > .toggle').filter(function () {
-      // filter out reimbursement to health professionals
-      return $(this).find('.dateEmission').text().indexOf('professionnels de santé') === -1
-    }).each(function () {
+    $('#tableauxRemboursements > .body > .toggle').each(function () {
       const $header = $(this).find('.headerRemboursements')
 
       const amount = convertAmount($header.find('.montant').text())
       const date = moment($header.find('#datePaiement').val(), 'x')
+      const isThirdPartyPayer = $(this).find('.dateEmission').text().indexOf('professionnels de santé') !== -1
 
       // unique id for reimbursement
       const idReimbursement = $header.find('#idDecompte').val()
@@ -77,7 +75,7 @@ module.exports = new BaseKonnector(function fetch (fields) {
       const $subrows = $(this).find('> .body tbody tr')
       let beneficiary = null
       $subrows.each(function () {
-        const data = $(this).find('td, th').map(function(index, elem){
+        const data = $(this).find('td, th').map(function (index, elem) {
           return $(this).text().trim()
         }).get()
 
@@ -88,14 +86,15 @@ module.exports = new BaseKonnector(function fetch (fields) {
           // a normal line with data
           const originalAmount = convertAmount(data[data.length - 2])
           const originalDate = moment($(this).find('#datePrestation').val(), 'x').toDate()
-          const subtype = data[1];
+          const subtype = data[1]
           // unique id for the prestation line. May be usefull
           const idPrestation = $(this).find('#idPrestation').val()
           const socialSecurityRefund = convertAmount(data[3])
           result.push({
             type: 'health_costs',
+            isThirdPartyPayer,
             subtype,
-            vendor: "Malakoff Mederic",
+            vendor: 'Malakoff Mederic',
             date: date.toDate(),
             fileurl,
             filename: getFileName(date, idReimbursement),
