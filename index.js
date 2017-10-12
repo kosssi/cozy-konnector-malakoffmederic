@@ -4,6 +4,7 @@ const moment = require('moment')
 let rq = request()
 const j = rq.jar()
 rq = request({
+  // debug: true,
   jar: j,
   json: false
 })
@@ -22,24 +23,28 @@ module.exports = new BaseKonnector(function fetch (fields) {
 
     log('debug', httpSessionId, 'httpSessionId')
 
-    return rq(`${domain}/dwr/engine.js`)
+    return rq({
+      method: 'POST',
+      url: `${domain}/dwr/call/plaincall/__System.generateId.dwr`,
+      body: `callCount=1\nc0-scriptName=__System\nc0-methodName=generateId\nc0-id=0\nbatchId=0\ninstanceId=0\npage=%2FespaceClient%2FLogonAccess.do\nscriptSessionId=\n`
+    })
     .then(body => {
-      const regexp = /dwr.engine._origScriptSessionId = "([A-Z0-9]+)"/g
+      const regexp = /dwr.engine.remote.handleCallback\(.*\)/g
       const matches = body.match(regexp)
-      const id = matches[0].split('"')[1]
-      // The client must generate 3 random digits
-      const scriptSessionId = id + Math.floor(Math.random() * 1000)
+      const tokens = matches[0].split('"')
+      tokens.pop()
+      const scriptSessionId = tokens.pop()
+
       return scriptSessionId
     })
     .then(scriptSessionId => {
       log('debug', scriptSessionId, 'scriptSessionId')
+      let cookie = rq.cookie(`DWRSESSIONID=${scriptSessionId}`)
+      j.setCookie(cookie, `${domain}/dwr/call/plaincall/InternauteValidator.checkConnexion.dwr`)
       return rq({
         method: 'POST',
         url: `${domain}/dwr/call/plaincall/InternauteValidator.checkConnexion.dwr`,
-        body: `callCount=1\npage=/espaceClient/LogonAccess.do\nhttpSessionId=${httpSessionId}` +
-              `\nscriptSessionId=${scriptSessionId}\nc0-scriptName=InternauteValidator\nc0-methodName=checkConnexion` +
-              `\nc0-id=0\nc0-param0=boolean:false\nc0-param1=string:${fields.login}\nc0-param2=string:` +
-              `${fields.password}\nc0-param3=string:\nbatchId=0\n`
+        body: `callCount=1\nnextReverseAjaxIndex=0\nc0-scriptName=InternauteValidator\nc0-methodName=checkConnexion\nc0-id=0\nc0-param0=string:${fields.login}\nc0-param1=string:${fields.password}\nc0-param2=string:\nbatchId=1\ninstanceId=0\npage=%2FespaceClient%2FLogonAccess.do\nscriptSessionId=${scriptSessionId}/${tokenify(new Date().getTime())}-${tokenify(Math.random() * 1E16)}\n`
       })
     })
   })
@@ -130,4 +135,15 @@ function getFileName (date, idDecompte) {
 function convertAmount (amount) {
   amount = amount.replace(' €', '').replace(',', '.')
   return parseFloat(amount)
+}
+
+function tokenify (number) {
+  var tokenbuf = []
+  var charmap = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ*$'
+  var remainder = number
+  while (remainder > 0) {
+    tokenbuf.push(charmap.charAt(remainder & 0x3F))
+    remainder = Math.floor(remainder / 64)
+  }
+  return tokenbuf.join('')
 }
