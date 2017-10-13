@@ -50,6 +50,7 @@ module.exports = new BaseKonnector(function fetch (fields) {
   })
   .then(body => {
     if (body.indexOf('LOGON_KO') > -1) {
+      console.log(body, 'LOGIN_FAILED error details')
       throw new Error('LOGIN_FAILED')
     }
     log('info', 'LOGGED_IN')
