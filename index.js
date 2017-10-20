@@ -44,16 +44,16 @@ module.exports = new BaseKonnector(function fetch (fields) {
       return rq({
         method: 'POST',
         url: `${domain}/dwr/call/plaincall/InternauteValidator.checkConnexion.dwr`,
-        body: `callCount=1\nnextReverseAjaxIndex=0\nc0-scriptName=InternauteValidator\nc0-methodName=checkConnexion\nc0-id=0\nc0-param0=string:${fields.login}\nc0-param1=string:${fields.password}\nc0-param2=string:\nbatchId=1\ninstanceId=0\npage=%2FespaceClient%2FLogonAccess.do\nscriptSessionId=${scriptSessionId}/${tokenify(new Date().getTime())}-${tokenify(Math.random() * 1E16)}\n`
+        body: `callCount=1\nnextReverseAjaxIndex=0\nc0-scriptName=InternauteValidator\nc0-methodName=checkConnexion\nc0-id=0\nc0-param0=string:${encodeURIComponent(fields.login)}\nc0-param1=string:${encodeURIComponent(fields.password)}\nc0-param2=string:\nbatchId=1\ninstanceId=0\npage=%2FespaceClient%2FLogonAccess.do\nscriptSessionId=${scriptSessionId}/${tokenify(new Date().getTime())}-${tokenify(Math.random() * 1E16)}\n`
       })
     })
   })
   .then(body => {
     if (body.indexOf('LOGON_KO') > -1) {
-      console.log(body, 'LOGIN_FAILED error details')
-      throw new Error('LOGIN_FAILED')
+      this.terminate('LOGIN_FAILED')
+    } else {
+      log('info', 'LOGGED_IN')
     }
-    log('info', 'LOGGED_IN')
   })
   .then(() => {
     rq = request({
