@@ -1,4 +1,4 @@
-const {BaseKonnector, log, request, saveBills} = require('cozy-konnector-libs')
+const {BaseKonnector, log, request, saveBills, errors} = require('cozy-konnector-libs')
 const moment = require('moment')
 
 let rq = request()
@@ -50,7 +50,7 @@ module.exports = new BaseKonnector(function fetch (fields) {
   })
   .then(body => {
     if (body.indexOf('LOGON_KO') > -1) {
-      this.terminate('LOGIN_FAILED')
+      throw new Error(errors.LOGIN_FAILED)
     } else {
       log('info', 'LOGGED_IN')
     }
