@@ -23,8 +23,8 @@
     "moment": "^2.18.1"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^4.0.1",
-    "git-directory-deploy": "^1.5.1",
-    "webpack": "^3.6.0"
+    "copy-webpack-plugin": "4.3.1",
+    "git-directory-deploy": "1.5.1",
+    "webpack": "3.10.0"
   }
 }
