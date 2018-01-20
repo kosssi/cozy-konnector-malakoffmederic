@@ -1,4 +1,4 @@
-const {BaseKonnector, log, requestFactory, saveBills, errors} = require('cozy-konnector-libs')
+const {BaseKonnector, log, requestFactory, saveBills, errors, retry} = require('cozy-konnector-libs')
 const moment = require('moment')
 
 let request = requestFactory()
@@ -14,9 +14,15 @@ const baseUrl = 'https://extranet.malakoffmederic.com'
 module.exports = new BaseKonnector(start)
 
 function start (fields) {
-  return fetchLoginPage()
-    .then(resp => logIn(fields, resp))
-    .then(fetchRemboursements)
+  return retry(fetchLoginPage, {
+    interval: 5000,
+    throw_original: true
+  }).then(resp => retry(() => logIn(fields, resp), {
+    interval: 5000,
+    throw_original: true,
+    // do not retry if we get the LOGIN_FAILED error code
+    predicate: err => err.message !== 'LOGIN_FAILED'
+  })).then(fetchRemboursements)
     .then(parseRemboursements)
     .then(entries => saveBills(entries, fields, {
       timeout: Date.now() + 60 * 1000,
@@ -29,11 +35,19 @@ function fetchLoginPage () {
     url: `${baseUrl}/espaceClient/LogonAccess.do`,
     resolveWithFullResponse: true
   })
+  .catch(err => {
+    console.log(err && err.message, 'fetchLoginPage Failed')
+    throw new Error(errors.VENDOR_DOWN)
+  })
 }
 
 function logIn (fields, resp) {
+  log('info', 'Logging in')
+
+  // Sometimes the login page is an error and does not give cookies then we retry later
+  if (!Array.isArray(resp.headers['set-cookie'])) throw new Error(errors.VENDOR_DOWN)
+
   // This id is stored in the cookie and used to check the log in
-  // FIXME it is possible there is no cookie we should then retry
   let httpSessionId = resp.headers['set-cookie'][0]
   httpSessionId = httpSessionId.split(';')[0]
   httpSessionId = httpSessionId.split('=')[1]
