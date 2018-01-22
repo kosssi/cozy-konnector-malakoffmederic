@@ -14,6 +14,26 @@ What's this new konnector?
 The konnector gets information from Malakoff Mederic (french national insurance)
 This konnector fetches the list of reimbursements from [Malakoff Mederic][malakoff_mederic].
 
+What data is imported ?
+-----------------------
+
+This konnector imports the list of reimbursements metadata that you can see in the "Suivi des remboursements" page. It uses the detailed view for each line.
+
+For each reimbursement, an associated PDF bill is downloaded (many reimbursements can have the
+same associated file and the file is only downloaded once.
+
+Each health care is separated to allow the linking with the original debit operation.
+But Malakoff Mederic can reimburse multiple health cares at once sometimes. And, for now, there is
+no matching of credit operation in this case.
+
+We will have to merge multiple bills with the same "idReimbursement" and sum originalAmount of each
+bill to get the real originalAmount of the credit (TODO).
+
+An example of imported data can be seen in [./importedData.json](./importedData.json)
+
+Take a look at the [documentation](https://github.com/cozy/cozy-doctypes/blob/master/docs/io.cozy.bills.md)
+to have the signification of the fields in this file.
+
 ### Open a Pull-Request
 
 If you want to work on this konnector and submit code modifications, feel free to open pull-requests! See the [contributing guide][contribute] for more information about how to properly open pull-requests.
