@@ -1,0 +1,40 @@
+[
+  {
+    "type": "health_costs",
+    "isThirdPartyPayer": true,
+    "subtype": "Pharmacie",
+    "vendor": "Malakoff Mederic",
+    "date": "2018-01-11T23:00:00.000Z",
+    "fileurl": "https://extranet.malakoffmederic.com/espaceClient/sante/tbs/tbsGenererPDF.do?remb=0",
+    "filename": "20180112_530117465_R18011200894832702_malakoff_mederic.pdf",
+    "amount": 9,
+    "idReimbursement": "530117465_R18011200894832702",
+    "idPrestation": "XXXXXXX",
+    "beneficiary": "user1",
+    "socialSecurityRefund": 0.83,
+    "originalAmount": 5.54,
+    "originalDate": "2018-01-07T23:00:00.000Z",
+    "isRefund": true,
+    "invoice": "io.cozy.files:fab17d1d6cd359cd9afd3db28fcaf652",
+    "_id": "fab17d1d6cd359cd9afd3db28fcaf639"
+  },
+  {
+    "type": "health_costs",
+    "isThirdPartyPayer": false,
+    "subtype": "Consultation Généraliste",
+    "vendor": "Malakoff Mederic",
+    "date": "2018-01-10T23:00:00.000Z",
+    "fileurl": "https://extranet.malakoffmederic.com/espaceClient/sante/tbs/tbsGenererPDF.do?remb=1",
+    "filename": "20180111_530117465_R180101025206001_malakoff_mederic.pdf",
+    "amount": 7.5,
+    "idReimbursement": "530117465_R180101025206001",
+    "idPrestation": "XXXXXXXXXXX",
+    "beneficiary": "user1",
+    "socialSecurityRefund": 17.5,
+    "originalAmount": 25,
+    "originalDate": "2018-01-07T23:00:00.000Z",
+    "isRefund": true,
+    "invoice": "io.cozy.files:d8bb6048a3f858deae674c8edb8d251f",
+    "_id": "d8bb6048a3f858deae674c8edb8d237f"
+  }
+]

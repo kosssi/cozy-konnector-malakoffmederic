@@ -8,11 +8,33 @@ What's Cozy?
 
 [Cozy] is a platform that brings all your web services in the same private space. With it, your webapps and your devices can share data easily, providing you with a new experience. You can install Cozy on your own hardware where no one's tracking you.
 
-What's this new konnector?
+What's this konnector?
 --------------------------
 
-The konnector gets information from Malakoff Mederic (french national insurance)
+The konnector gets information from Malakoff Mederic (French national insurance)
 This konnector fetches the list of reimbursements from [Malakoff Mederic][malakoff_mederic].
+
+What data is imported ?
+-----------------------
+
+This konnector imports the list of reimbursements metadata that you can see in the "Suivi des remboursements" page on Malakoff Mederic website.
+It uses the detailed view for each line.
+
+For each reimbursement, an associated PDF bill is downloaded (many reimbursements can have the
+same associated file and the file is only downloaded once.
+
+Each health care treatment has its own document in io.cozy.bills to  allow the linking with the original debit operation.
+But Malakoff Mederic can reimburse multiple health cares treatments at once sometimes.
+
+An example of imported data can be seen in [./importedData.json](./importedData.json)
+
+Take a look at the [documentation](https://github.com/cozy/cozy-doctypes/blob/master/docs/io.cozy.bills.md)
+to have the signification of the fields in this file.
+
+### TODO
+
+- [ ] Merge multiple bills with the same "idReimbursement" and sum originalAmount of each
+bill to get the real originalAmount of the related credit operation
 
 ### Open a Pull-Request
 
